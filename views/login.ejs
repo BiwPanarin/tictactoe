@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <%- include('partials/headLogin', { scriptNonce: scriptNonce, styleNonce: styleNonce }); %>
+</head>
+<header>
+  <nav class="navbar navbar-expand-lg navbar-light bg-primary bg-gradient z-index">
+    <h4 class="col-md col-lg me-0 px-3 lang-Login-Title text-white"></h4>
+  </nav>
+</header>
+
+<body class="background-image">
+  <div class="center-screen">
+    <div class="container">
+      <div class="row justify-content-center">
+        <div class="col-12 col-md-9 col-lg-6">
+          <div class="card bg-light">
+            <div class="card-body titleValidate">
+              <h2 class="lang-Login-Title mb-5 text-center"><%= title %></h2>
+
+              <div class="input-group mb-3 text-end subValidate">
+                <label class="input-group-text col-4 lang-Login-UserId" for="userId"></label>
+                <input class="form-control validate rounded-end lang-Login-UserId-Placeholder" type="text" id="userId" name="userId" autocomplete="off" />
+                <div class="invalid-feedback" id="erroruserId"></div>
+              </div>
+
+              <div class="input-group mb-3 text-end subValidate">
+                <label class="input-group-text col-4 lang-Login-Password" for="password"></label>
+                <input class="form-control validate rounded-end lang-Login-Password-Placeholder" type="password" id="password" name="password" />
+                <div class="invalid-feedback" id="errorpassword"></div>
+              </div>
+
+              <div class="text-center">
+                <input type="button" class="btn bg-primary bg-gradient text-white a_but_margin_up lang-Login-Button" id="loginButton">
+                <br>
+                <div class="invalid-feedback" id="errorlogin"></div>
+                
+                <div class="border-top my-3"></div>
+                <div class="mb-3">
+                  <form action="/login/google" method="get" class="mb-2">
+                    <button type="submit" class="btn btn-danger w-100">
+                      <i class="bi bi-google"></i> <span class="lang-Login-Button-Google"></span>
+                    </button>
+                  </form>
+                  <form action="/login/github" method="get" class="mb-2">
+                    <button type="submit" class="btn btn-dark w-100">
+                      <i class="bi bi-github"></i> <span class="lang-Login-Button-GitHub"></span>
+                    </button>
+                  </form>
+                  <form action="/login/facebook" method="get" class="mb-2">
+                    <button type="submit" class="btn btn-primary w-100">
+                      <i class="bi bi-facebook"></i> <span class="lang-Login-Button-Facebook"></span>
+                    </button>
+                  </form>
+                </div>
+                <br>
+                <div>
+                  <span class="lang-Login-Change-Language"></span>
+                  <span id="lang"></span>
+                </div>
+                
+              </div>
+            </div>
+          </div>
+          <input class="d-none" type="text" id="honeypot" name="honeypot" />
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="modal display-none" id="modal-loading" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" inert>
+    <div class="modal-dialog modal-sm">
+      <div class="text-center">
+        <div class="loading-spinner mb-2"></div>
+        <div></div>
+      </div>
+    </div>
+  </div>
+
+  <script nonce="<%- scriptNonce %>">
+
+    $(document).ready(function () {
+      $("#erroruserId").addClass("error-visibility")
+      $("#errorpassword").addClass("error-visibility")
+      $("#errorlogin").addClass("error-visibility")
+      
+      localStorage.setItem("playerWin", 0)
+      localStorage.setItem("playerLose", 0)
+      localStorage.setItem("botWin", 0)
+      localStorage.setItem("botLose", 0)
+
+      // localStorage.clear()
+
+      changeLang()
+
+    });
+
+    async function getCsrfToken() {
+      const res = await fetch('/getCsrf');
+      const data = await res.json();
+      return data.csrfToken;
+    }
+
+    document.getElementById('password').addEventListener('input', function (event) {
+      event.target.value = event.target.value
+        .replace(/[^\S.]/g, '')          // ลบอักขระ whitespace (ยกเว้น ".")
+        .replace(/(\..*)\./g, '$1');     // จำกัดให้มี "." ได้เพียงหนึ่งตัว
+    });
+
+    document.getElementById('userId').addEventListener('input', function (event) {
+      event.target.value = event.target.value
+      .toLowerCase()
+        .replace(/[^\S.]/g, '')          // ลบอักขระ whitespace (ยกเว้น ".")
+        .replace(/[^a-z0-9.]/g, '')             // กรองให้เหลือแค่ a-z, 0-9, .
+        .replace(/(\..*)\./g, '$1')     // จำกัดให้มี "." ได้เพียงหนึ่งตัว
+    });
+
+    document.getElementById('loginButton').addEventListener('click', () => {
+      login();
+    });
+
+    document.getElementById('lang').addEventListener('click', () => {
+      changeLang($("#flag").attr("lang"));
+    });
+
+    function oppositeTH() {
+      localStorage.setItem("language", 'TH')
+      $("#lang").append(`<span id="flag" class="fi fi-gb flag-small" lang="EN"></span>`)
+    }
+
+    function oppositeEN() {
+      localStorage.setItem("language", 'EN')
+      $("#lang").append(`<span id="flag" class="fi fi-th flag-small" lang="TH"></span>`)
+    }
+
+    function changeLang(language) {
+
+      $("#flag").remove();
+
+      if (!localStorage.getItem("language")) {
+        oppositeTH()
+      }
+      else if (language) {
+        if (language == "TH") {
+          oppositeTH()
+        }
+        else if (language == "EN") {
+          oppositeEN()
+        }
+      }
+      else {
+        if (localStorage.getItem("language") == "TH") {
+          oppositeTH()
+        }
+        else if (localStorage.getItem("language") == "EN") {
+          oppositeEN()
+        }
+      }
+
+      changeLanguage(localStorage.getItem("language"), window.location.pathname.substring(1))
+      changeAppendict(localStorage.getItem("language"))
+
+    }
+
+    function chooseLang(key) {
+      return choosenLang(localStorage.getItem("language"), window.location.pathname.substring(1), key)
+    }
+
+    function chooseAppendict(type, key) {
+      return choosenAppendict(localStorage.getItem("language"), type, key)
+    }
+
+    async function loginCheck() {
+
+      const csrfToken = await getCsrfToken();
+      console.log(csrfToken)
+      const userId = $("#userId").val();
+      const password = $("#password").val();
+      const honeypot = $("#honeypot").val();
+      const url = `/auth/local`
+      const data = {
+        userId: userId,
+        password: password,
+        language: localStorage.getItem("language")
+      };
+      const customHeaders = {
+        "Content-Type": "application/json",
+        'X-CSRF-Token': csrfToken
+      }
+      fetch(url, {
+        method: "POST",
+        headers: customHeaders,
+        body: JSON.stringify(data),
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          if (data.flag == "Y" && data.reason == "login_success") {
+
+            Swal.fire({
+              allowOutsideClick: false,
+              icon: 'success',
+              title: chooseAppendict('errorValidate', 'loginSuccess'),
+              showConfirmButton: false,
+              timer: 800,
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+
+            setTimeout(function () {
+              window.location.href = window.location.origin + data.nextPage;
+            }, 1200);
+
+          }
+          else if (data.flag == "N" && data.reason == "username_or_password_incorrect") {
+            $("#errorlogin").addClass("error-input-red").html(chooseAppendict('errorValidate', 'loginFalse'));
+            $('.titleValidate .subValidate').find('.validate').each(function () {
+              if (this.tagName == "INPUT") {
+                $("#" + this.id).addClass("error-input-red");
+                $("#error" + this.id).addClass("error-div-red").attr("appendict-type", "errorValidate").attr("appendict", "loginFalse").html(chooseAppendict('errorValidate', 'loginFalse')).removeClass("error-visibility");
+              }
+            });
+            Swal.fire({
+              focusConfirm: false,
+              allowOutsideClick: false,
+              confirmButtonColor: `#dc3545`,
+              icon: 'error',
+              title: chooseAppendict('errorValidate', 'loginFalse'),
+              confirmButtonText: chooseLang("lang-Login-Close"),
+              footer: '',
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+            $('#modal-loading').modal('hide');
+          }
+          else if (data.flag == "N" && data.reason == "not_authorized") {
+            $("#errorlogin").addClass("error-input-red").html(chooseAppendict('errorValidate', 'notAuthorized'));
+            $('.titleValidate .subValidate').find('.validate').each(function () {
+              if (this.tagName == "INPUT") {
+                $("#" + this.id).addClass("error-input-red");
+                $("#error" + this.id).addClass("error-div-red").attr("appendict-type", "errorValidate").attr("appendict", "notAuthorized").html(chooseAppendict('errorValidate', 'notAuthorized')).removeClass("error-visibility");
+              }
+            });
+            Swal.fire({
+              focusConfirm: false,
+              allowOutsideClick: false,
+              confirmButtonColor: `#dc3545`,
+              icon: 'error',
+              title: chooseAppendict('errorValidate', 'notAuthorized'),
+              confirmButtonText: chooseLang("lang-Login-Close"),
+              footer: '',
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+            $('#modal-loading').modal('hide');
+          }
+          else if (data.flag == "N" && data.reason == "rate_limiting") {
+            Swal.fire({
+              allowOutsideClick: false,
+              confirmButtonColor: `#dc3545`,
+              iconColor: `#dc3545`,
+              showConfirmButton: true,
+              icon: 'warning',
+              title: chooseLang("lang-Login-Rate-Limit-Title") || "Abnormal usage detected",
+              html: chooseLang("lang-Login-Rate-Limit") || "Please try again later",
+              confirmButtonText: chooseLang("lang-Login-Close"),
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+            $('#modal-loading').modal('hide');
+          }
+          else if (data.flag == "N" && data.reason == "something_wrong") {
+            Swal.fire({
+              allowOutsideClick: false,
+              confirmButtonColor: `#dc3545`,
+              iconColor: `#dc3545`,
+              showConfirmButton: true,
+              icon: 'warning',
+              title: chooseLang("lang-Login-Something-Wrong-Title"),
+              html: chooseLang("lang-Login-Something-Wrong"),
+              confirmButtonText: chooseLang("lang-Login-Close"),
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+            $('#modal-loading').modal('hide');
+          }
+          else if (data.flag == "N") {
+            $("#errorlogin").addClass("error-input-red").html(chooseAppendict('errorValidate', 'loginFalse'));
+            $('.titleValidate .subValidate').find('.validate').each(function () {
+              if (this.tagName == "INPUT") {
+                $("#" + this.id).addClass("error-input-red");
+                $("#error" + this.id).addClass("error-div-red").attr("appendict-type", "errorValidate").attr("appendict", "loginFalse").html(chooseAppendict('errorValidate', 'loginFalse')).removeClass("error-visibility");
+              }
+            });
+            Swal.fire({
+              focusConfirm: false,
+              allowOutsideClick: false,
+              confirmButtonColor: `#dc3545`,
+              icon: 'error',
+              title: chooseAppendict('errorValidate', 'loginFalse'),
+              confirmButtonText: chooseLang("lang-Login-Close"),
+              footer: '',
+              didOpen: (popup) => {
+                popup.setAttribute('nonce', '<%= styleNonce %>');
+              }
+            })
+            $('#modal-loading').modal('hide');
+          }
+        })
+        .catch(error => console.log('error', error));
+    }
+
+    async function login() {
+      var npass = "N"
+
+      $("#errorlogin").addClass("error-visibility")
+
+      $('.titleValidate .subValidate').find('.validate').each(function () {
+
+        if (this.tagName == "INPUT") {
+          if ($('#' + this.id).val() == '') {
+            $("#" + this.id).addClass("error-input-red");
+            $("#error" + this.id).addClass("error-div-red").attr("appendict-type", "errorValidate").attr("appendict", "fill").html(chooseAppendict('errorValidate', 'fill')).removeClass("error-visibility");
+            npass = "Y";
+          }
+          else {
+            $("#" + this.id).removeClass("error-input-red");
+            $("#error" + this.id).html("").removeClass("error-div-red").addClass("error-visibility");
+          }
+        }
+
+      });
+
+      if (npass == "Y") {
+        return false;
+      }
+      else {
+        $('#modal-loading').modal('show');
+        setTimeout(function () {
+          loginCheck();
+        }, 2000);
+
+      }
+    }
+
+    // All validate input though here
+    $("input").on("keyup", function (e) {
+      $("#errorlogin").addClass("error-visibility")
+      if (e.key === 'Enter' || e.keyCode === 13) {
+        login()
+      }
+      else if (this.value == null || this.value == '' || this.value == undefined) {
+        $("#" + this.id).addClass("error-input-red");
+        $("#error" + this.id).addClass("error-div-red").attr("appendict-type", "errorValidate").attr("appendict", "fill").html(chooseAppendict('errorValidate', 'fill')).removeClass("error-visibility");
+      }
+      else {
+        $("#" + this.id).removeClass("error-input-red");
+        $("#error" + this.id).removeClass("error-div-red").addClass("error-visibility");
+      }
+
+    });
+
+  </script>
+
+</body>
+
+</html>

@@ -1,0 +1,145 @@
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2 lang-Sidebar-Report-Ox"></h1>
+  </div>
+
+  <div class="table-responsive">
+    <table id="dataTable" class="text-nowrap table table-light table-hover table-striped table-sm table-borderless"
+      width="100%">
+      <thead>
+        <tr>
+          <th class="lang-Report-Player" scope="col"></th>
+          <th class="lang-Report-Win" scope="col"></th>
+          <th class="lang-Report-Lose" scope="col"></th>
+        </tr>
+      </thead>
+      <tbody id="dataTableBody">
+
+      </tbody>
+    </table>
+  </div>
+</main>
+
+<script>
+  $(document).ready(function () {
+    $('#modal-loading').modal('show');
+
+    const table = $('#dataTable').DataTable();
+
+    $('#dataTable .dataTables_empty').html(chooseAppendict('datatable', 'emptytable'));
+    $(".dataTables_filter, .dataTables_info, .dataTables_length, .paginate_button").attr("style", "display:none;")
+    $("#wrap").contents().unwrap();
+    $("#dataTable").removeClass("no-footer");
+    
+    reportLanding();
+  });
+
+  function reportLanding() {
+    $('#modal-loading').modal('show');
+
+        let table = $('#dataTable').DataTable();
+        table.clear().draw();
+        table.destroy();
+
+        const playerName = '<%= userNameSession %>'
+
+        const data = [
+          {player: playerName, win: localStorage.getItem("playerWin") || 0, lost: localStorage.getItem("playerLose") || 0},
+          {player: "Bot", win: localStorage.getItem("botWin") || 0, lost: localStorage.getItem("botLose") || 0}
+        ]
+
+        for (let s = 0; s < data.length; s++) {
+
+          $("#dataTableBody").append($(`
+                <tr>
+                    <td data-order=${data[s].player}>${data[s].player}</td>
+                    <td>${data[s].win}</td>
+                    <td>${data[s].lost}</td>
+                </tr>
+              `));
+
+        }
+
+        $('#dataTable').DataTable({
+          paging: true,
+          dom: 'Bfrtip',
+          rowReorder: false,
+          oLanguage: {
+            sSearch: chooseAppendict('datatable', 'search'),
+            sInfo: chooseAppendict('datatable', 'info'),
+            oPaginate: {
+              sNext: chooseAppendict('datatable', 'next'),
+              sPrevious: chooseAppendict('datatable', 'previous'),
+            },
+            sEmptyTable: chooseAppendict('datatable', 'emptytable'),
+            sInfoEmpty: chooseAppendict('datatable', 'emptytableInfo'),
+          },
+          "initComplete": function (settings, json) {
+            $("#dataTable").wrap("<div style='overflow:auto; width:100%; position:relative;'></div>");
+          },
+          buttons: [
+            {
+              text: `<i class="bi bi-file-earmark-excel-fill"></i> <b class="lang-Report-Export">${chooseLang("lang-Report-Export")}</b>`,
+              extend: 'excelHtml5',
+              className: 'btn btn-outline-success',
+              footer: true,
+              autoFilter: true,
+              filename: chooseLang("lang-Report-Title").replace(" ", "_").toLowerCase() + "_" + moment().locale("TH").add(543, 'year').format("YYYY_MM_DD_T_HH_mm_ss"),
+              title: chooseLang("lang-Report-Title") + " : " + moment().locale("TH").add(543, 'year').format("YYYY-MM-DDTHH:mm:ss.sss"),
+              messageBottom: `TIC TAC TOE TEST PROJECT EXPORT`,
+              customize: function (xlsx) {
+                var source = xlsx.xl['workbook.xml'].getElementsByTagName('sheet')[0];
+                var sheet = xlsx.xl.worksheets['sheet1.xml'];
+                var f1 = `<sheetViews>
+                              <sheetView tabSelected="1" zoomScale="150" zoomScaleNormal="150" workbookViewId="0">
+                                <pane ySplit="2" topLeftCell="A3" activePane="bottomRight" state="frozen"/>
+                              </sheetView>
+                          </sheetViews>`;
+
+                $('worksheet', sheet).prepend(f1);
+
+                console.log(xlsx);
+
+                $('row[r=2] c', sheet).attr('s', '2');
+                $('row[r=2] c', sheet).attr('s', '51');
+              },
+              action: async function (e, dt, button, config) {
+                // กัน action เดิม/การ bubble ตั้งแต่ต้น
+                e.preventDefault();
+                e.stopPropagation();
+                
+                // const result = await auditReportSave(window.location.pathname);
+                const result = {}
+                result.ok = true
+
+                if (result.ok) {
+                  // เรียกการทำงานเดิม (export excel)
+                  $.fn.dataTable.ext.buttons.excelHtml5.action.call(this, e, dt, button, config);
+                }
+                else if (result.reason === 'authorized_failed') {
+                  window.location.href = window.location.origin + '/timeout';
+                }
+                else {
+                  Swal.fire({
+                    confirmButtonColor: '#dc3545',
+                    confirmButtonText: chooseLang("lang-Report-Save-Pop-Confirm"),
+                    iconColor: "#dc3545",
+                    icon: 'warning',
+                    title: chooseLang("lang-Report-Save-Pop-Title"),
+                    text: 'REASON : ' + result.message
+                  })
+                  // return;
+                }
+              }
+            }
+          ]
+        });
+
+        $("#dataTable").removeClass("no-footer");
+
+        setTimeout(function () {
+          $('#modal-loading').modal('hide');
+        }, timeout());
+  }
+
+</script>

@@ -1,0 +1,17 @@
+<header class="navbar navbar-dark sticky-top bg-primary bg-gradient flex-md-nowrap p-0 shadow" data-bs-theme="dark">
+  <a class="navbar-brand col-md-3 col-lg-2 me-0 px-3 lang-Head-Company" href="/dashboard"></a>
+  <button class="navbar-toggler d-md-none collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+  <div class="navbar-nav data-navbar-hide">
+    <div class="nav-item text-nowrap">
+      <form action="/signout" method="GET" class="d-flex">
+        <a type="submit" id="lang" class="nav-link px-2"></a>
+        <span class="nav-link noHover px-2">|</span>
+        <span class="nav-link noHover px-3" id="navbarCompany"><b style="color: white;" id="navbarCompanyText"></b></span>
+        <span class="nav-link noHover px-2">|</span>
+        <a type="submit" class="nav-link px-3 lang-Navbar-Logout" href="/signout" style="color: white;"></a>
+      </form>
+    </div>
+  </div>
+</header>

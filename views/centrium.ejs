@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <%- include('partials/head'); %>
+</head>
+
+<body class="<%= page === 'dashboard' ? 'background-image' : 'background-white' %>" >
+
+  <%- include('partials/header'); %>
+
+  <div class="container-fluid <%= page === 'dashboard' ? '' : 'background-white' %>">
+    <div class="row">
+      <%- include('partials/sidebar'); %>
+        <div id="bodyHide" style="display: none;">
+          <%- include(page); %>
+        </div>
+    </div>
+  </div>
+  <div class="modal display-none" id="modal-loading" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" inert>
+      <div class="modal-dialog modal-sm">
+        <div class="text-center">
+          <div class="loading-spinner mb-2"></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+  <div class="container-fluid <%= page === 'dashboard' ? '' : 'background-white' %>">
+    <%- include('partials/footer'); %>
+  </div>
+    <script>
+
+      $(document).ready(function () {
+        changeLang()
+      });
+
+      function changingLang() {
+        changeLang()
+      }
+
+      function oppositeTH() {
+        localStorage.setItem("language", 'TH')
+        $("#lang").append(`<span id="flag" class="fi fi-gb flag-small" onclick="changeLang('EN')"></span>`)
+      }
+
+      function oppositeEN() {
+        localStorage.setItem("language", 'EN')
+        $("#lang").append(`<span id="flag" class="fi fi-th flag-small" onclick="changeLang('TH')"></span>`)
+      }
+
+      function changeLang(language) {
+
+        $("#flag").remove();
+
+        if (!localStorage.getItem("language")) {
+          oppositeTH()
+        }
+        else if (language) {
+          if (language == "TH") {
+            oppositeTH()
+          }
+          else if (language == "EN") {
+            oppositeEN()
+          }
+        }
+        else {
+          if (localStorage.getItem("language") == "TH") {
+            oppositeTH()
+          }
+          else if (localStorage.getItem("language") == "EN") {
+            oppositeEN()
+          }
+        }
+
+        changeLanguage(localStorage.getItem("language"), window.location.pathname.substring(1))
+        changeAppendict(localStorage.getItem("language"))
+        changeAppendictDatatable(localStorage.getItem("language"))
+
+        refreshSelect()
+
+      }
+
+      changeLang();
+
+      function refreshSelect() {
+        $(`.select-lang`).selectpicker('destroy');
+        $(`.select-lang`).selectpicker();
+      }
+
+      function chooseLang(key) {
+        return choosenLang(localStorage.getItem("language"), window.location.pathname.substring(1), key)
+      }
+
+      // มีไว้สำหรับ autofill เนื่องจาก selectpicker ไม่ทำงานกับ autofill ที่ทำให้ select เปลี่ยน - ข้อมูล difference กัน
+      $("select").on("blur", function () {
+        $(`#${this.id}`).selectpicker('val', (this.value));
+      })
+
+      function chooseAppendict(type, key) {
+        return choosenAppendict(localStorage.getItem("language"), type, key)
+      }
+
+      function timeout() {
+        return 500
+      }
+
+      setTimeout(function () {
+        $('#bodyHide').removeAttr('style')
+      }, 400);
+
+      
+        
+      setInterval(checkSession, 1 * 60 * 1000);
+      checkSession();
+
+      function checkSession() {
+
+        fetch('/checkSession')
+          .then(response => {
+            if (response.status != 200 || !response.ok) {
+              window.location.href = "/timeout";
+            }
+          })
+          .catch(error => console.error('Error checking session:', error));
+
+      }
+
+      async function auditReportSave(path) {
+        const table = $('#dataTable').DataTable();
+
+        // จำนวน row ที่แสดงอยู่ (filtered/paginated)
+        const filteredRows = table.rows({ search: 'applied' }).count();
+
+        const url = `/auditReportSave`
+        const customHeaders = {
+          "Content-Type": "application/json",
+        }
+        const data = {
+          count: filteredRows,
+          path: path
+        }
+
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data)
+        });
+
+        const contentType = response.headers.get("content-type") || "";
+        let payload;
+
+        if (contentType.includes("application/json")) {
+          payload = await response.json();
+        } else {
+          payload = await response.text(); // fallback เผื่อไม่ใช่ JSON
+        }
+
+        const result = {}
+        result.ok = response.ok
+        result.reason = payload.reason
+        result.message = payload.message
+
+        return result
+
+      }
+
+    </script>
+
+</body>
+
+</html>

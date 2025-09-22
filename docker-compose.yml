@@ -1,0 +1,31 @@
+version: '3.9'
+
+# Services
+services:
+  # App service
+  tictactoetest:
+    build:
+      context: ./tictactoetest
+    ports:
+      - "5454:5454"
+    volumes:
+      - ./tictactoetest:/usr/src/app
+      - ./tictactoetest/log:/usr/src/app/log
+    environment:
+      - NODE_ENV=development
+    networks:
+      - frontend-backend-network # เพิ่ม Network
+      - lb-network # รองรับ Load Balancer
+    restart: unless-stopped
+
+# Networks
+networks:
+  frontend-backend-network:
+    driver: bridge # ใช้ Bridge Network สำหรับคอนเทนเนอร์สื่อสารกัน
+  lb-network:
+    driver: bridge # สำหรับเชื่อม Load Balancer กับคอนเทนเนอร์
+
+# Volumes define
+volumes: 
+  dependencies:
+  db_data:

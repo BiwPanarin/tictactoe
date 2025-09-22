@@ -1,0 +1,73 @@
+<main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+  <div class="container py-5">
+    <h1 class="text-center mb-1 lang-Ox-Title"></h1>
+    <p class="text-center text-muted mb-4 lang-Ox-Detail">
+    </p>
+
+    <div class="container-fluid">
+      <div class="row mt-4 mb-3">
+        <div class="col">
+          <div class="card bg-light">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+                    <div class="input-group input-max-width">
+                        <label class="input-group-text col-sm-4 col-form-label text-end lang-Ox-Player-Title" for="playerSelect"></label>
+                        <div class="col-sm">
+                        <select class="validate select-lang rounded-end normal_color_border"
+                                data-dropup-auto="false" data-live-search="false" data-width="100%"
+                                id="playerSelect" name="playerSelect" group="playerSelect">
+                            <option value="X" appendict-type='xo' appendict='x' data-subtext="" selected></option>
+                            <option value="O" appendict-type='xo' appendict='o' data-subtext=""></option>
+                        </select>
+                        <div class="invalid-feedback text-end" id="error_playerSelect"></div>
+                        </div>
+                    </div>
+
+                    <div class="input-group input-max-width">
+                        <label class="input-group-text col-sm-4 col-form-label text-end lang-Ox-Level-Title" for="difficultySelect"></label>
+                        <div class="col-sm">
+                        <select class="validate select-lang rounded-end normal_color_border"
+                                data-dropup-auto="false" data-live-search="false" data-width="100%"
+                                id="difficultySelect" name="difficultySelect" group="difficultySelect">
+                            <option appendict-type='level' appendict='easy' data-subtext="" value="easy" selected></option>
+                            <option appendict-type='level' appendict='hard' data-subtext="" value="hard"></option>
+                        </select>
+                        <div class="invalid-feedback text-end" id="error_difficultySelect"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- แถบคะแนน/สตรีค -->
+                <div class="row mt-3">
+                    <div class="col text-center">
+                    <span class="badge bg-primary p-2 me-2 button-style-lg lang-Ox-Your-Score" id="score"></span>
+                    <span class="badge bg-warning text-dark p-2 button-style-lg lang-Ox-Your-Streak" id="streak"></span>
+                    </div>
+                </div>
+                <!-- /แถบคะแนน/สตรีค -->
+
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="d-flex justify-content-center gap-3 mb-4 flex-wrap">
+      <button type="button" class="btn btn-success px-4 button-style-lg" id="btnNew">
+        <span class="lang-Ox-New-Game"></span>
+      </button>
+    </div>
+
+    <div id="board" class="board mx-auto"></div>
+
+    <div class="text-center mt-4">
+      <span class="badge bg-secondary p-2 me-2 button-style-lg lang-Ox-Status" id="status"></span><br><br>
+      <button type="button" class="btn btn-outline-secondary button-style-lg" id="btnUndo">
+        <i class="bi bi-arrow-counterclockwise"></i> <span class="lang-Ox-Btn-Undo"></span>
+      </button>
+    </div>
+  </div>
+</main>
+
+<script src="/javascripts/game.js"></script>

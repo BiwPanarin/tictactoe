@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>
+    <%= title %>
+  </title>
+  <%- include('partials/headLogin', { scriptNonce: scriptNonce, styleNonce: styleNonce }); %>
+</head>
+
+<body>
+
+    <div class="modal" id="modal-loading" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false"
+      tabindex="-1">
+      <div class="modal-dialog modal-sm">
+        <div class="text-center">
+          <div class="loading-spinner mb-2"></div>
+          <div></div>
+        </div>
+      </div>
+    </div>
+
+    <script nonce="<%- scriptNonce %>">
+        $(document).ready(function () {
+
+            Swal.fire({
+                allowOutsideClick: false,
+                confirmButtonColor: "#dc3545",
+                icon: 'warning',
+                iconColor: '#dc3545',
+                title: chooseLang("lang-Timeout-Title"),
+                html: chooseLang("lang-Timeout-Text")
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = window.location.origin + '/signout';
+                }
+            })
+        });
+
+        function chooseLang(key) {
+          return choosenLang(localStorage.getItem("language"), window.location.pathname.substring(1), key)
+        }
+        
+    </script>
+
+</body>
+
+</html>

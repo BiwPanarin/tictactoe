@@ -1,0 +1,95 @@
+<nav id="sidebarMenu" class="col-md-3 col-lg-2 d-md-block bg-light sidebar collapse">
+    <div class="position-sticky pt-1">
+        <ul class="nav flex-column">
+            <li class="nav-item pt-2">
+                <a class="nav-link noHover">
+                    <label class="h3"><b id="sidebarCompany"></b></label>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="tic-tac-toe" href="/tic-tac-toe">
+                    <i class="bi bi-box-arrow-in-right"></i>
+                    <span class="lang-Sidebar-Ox"></span>
+                </a>
+            </li>
+
+        <hr class="my-3">
+
+        <ul class="nav flex-column mb-2">
+            <li class="nav-item">
+                <a class="nav-link" id="report" href="/report">
+                    <i class="bi bi-filetype-xlsx"></i>
+                    <span class="lang-Sidebar-Report-Ox"></span>
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/signout">
+                    <i class="bi bi-arrow-bar-left"></i>
+                    <span class="lang-Sidebar-Logout"></span>
+                </a>
+            </li>
+        </ul>
+    </div>
+</nav>
+
+<script>
+
+    $(document).ready(function () {
+        callingNav();
+        
+    });
+
+    function callingNav() {
+
+        $('#modal-loading').modal('show');
+
+        const url = `/callRank`
+        const customHeaders = {
+            "Content-Type": "application/json"
+        }
+        fetch(url, {
+            method: "GET",
+            headers: customHeaders
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                const avatar = data.navUserImage || "/images/avatar-default.png"
+
+                $("#navbarCompanyText").text(`${data.navUserName}`)
+
+                data.navCompany = "TIC TAC TOE PLAYER"
+                $("#sidebarCompany").html(`
+                    <img src="${avatar}" alt="${data.navUserName}"
+                        class="rounded-circle d-block mx-auto"
+                        width="96" height="96"
+                        style="object-fit:cover;"
+                        loading="lazy" referrerpolicy="no-referrer"
+                        onerror="this.src='/images/avatar-default.png'"
+                    />
+                    <br>
+                    ${data.navUserName} 
+                    <br> 
+                    <span class="h6">${data.navCompany}</span>`)
+                prepareVar()
+            })
+            .catch(error => console.log('error', error));
+    }
+
+    function prepareVar(rank) {
+
+        feather.replace({ 'aria-hidden': 'true' })
+
+        $(`#${window.location.pathname.substring(1)}`).addClass("active")
+        const isReport = window.location.pathname.split("-")[0].substring(1)
+        
+        if (isReport == "tic") {
+            $(`#${isReport}`).addClass("active")
+        }
+        else if (isReport == "report") {
+            $(`#${isReport}`).addClass("active")
+        }
+        else if (isReport == "setiing") {
+            $(`#${isReport}`).addClass("active")
+        }
+    }
+</script>
