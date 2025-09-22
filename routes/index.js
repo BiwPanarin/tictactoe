@@ -248,7 +248,6 @@ router.get('/signin', function (req, res, next) {
   }
 });
 
-// ทางเลือก 2: บังคับไป Provider เฉพาะด้วย connection
 // ชื่อ connection ดูได้จาก Auth0 (เช่น "google-oauth2", "github")
 router.get('/login/google', (req, res) => {
   res.oidc.login({
