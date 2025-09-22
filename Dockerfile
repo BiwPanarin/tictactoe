@@ -1,8 +1,6 @@
 # ใช้ Node.js เวอร์ชัน 20
 FROM node:20.14.0-alpine
 
-ENV NODE_EXTRA_CA_CERTS=/app/certs/r1.pem
-
 # ตั้งค่า working directory
 WORKDIR /usr/src/app
 
