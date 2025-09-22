@@ -63,21 +63,26 @@
 > ปรับค่าให้ตรงกับเทนแนนต์/โดเมนของคุณ
 
 ```env
-NODE_ENV='development'
-ENVIR = 'development'
-SESSION_SECRET=sessionToken
-PORT_FRONTEND=5454
-AUTH0_BASE_URL=http://localhost:5454
-
-AUTH0_ISSUER_BASE_URL=https://<YOUR_AUTH0_DOMAIN>  # เช่น https://your-tenant.auth0.com
-AUTH0_CLIENT_ID=<AUTH0_APP_CLIENT_ID>              # ของ "แอป" ใน Auth0 (ไม่ใช่ของ Google/MS/FB)
-AUTH0_CLIENT_SECRET=<AUTH0_APP_CLIENT_SECRET>
-
-AUTH0_LOGOUT_RETURN_TO=http://localhost:5454/
-AUTH0_MS_CONNECTION=windowslive                   # หรือชื่อ enterprise เช่น azuread-main
-TOKEN_COOKIE_NAME=appToken                        # (ถ้ามีการตั้งคุกกี้เอง)
-SESSION_SECRET=sessionToken
 NODE_ENV=development
+ENVIR = 'development'
+PORT_FRONTEND=5454
+TZ=Asia/Bangkok
+TOKEN_COOKIE_NAME=oxTicTacToeSession
+
+# Common
+SESSION_SECRET=REPLACE_WITH_SESSION_SECRET
+
+# Auth0 Web (OIDC)
+AUTH0_ISSUER_BASE_URL=https://{YOUR_DOMAIN}.auth0.com
+AUTH0_CLIENT_ID=REPLACE_WITH_CLIENT_ID
+AUTH0_CLIENT_SECRET=REPLACE_WITH_CLIENT_SECRET
+AUTH0_BASE_URL=http://localhost:5454
+AUTH0_LOGOUT_RETURN_TO=http://localhost:5454/
+AUTH0_MS_CONNECTION=windowslive
+
+# FOR TEST
+USER_ID=user.test
+USER_PASSWORD=REPLACE_WITH_HASHED_PASSWORD_OR_INSTRUCT_USE_TEST_USER
 ```
 
 ---
